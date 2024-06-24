@@ -29,17 +29,16 @@ class CustomWebSocket {
     private function checkPortUsage() {
         $cmd = sprintf('lsof -i:%d -t', $this->port);
         $output = shell_exec($cmd);
-        if ($output) {
-            $pids = explode("\n", trim($output));
-            foreach ($pids as $pid) {
-                if (is_numeric($pid)) {
-                    echo "Killing process $pid using port {$this->port}\n";
-                    posix_kill((int)$pid, SIGTERM);
-                }
+        if (!$output) return;
+        
+        $pids = explode("\n", trim($output));
+        foreach ($pids as $pid) {
+            if (is_numeric($pid)) {
+                echo "Killing process $pid using port {$this->port}\n";
+                posix_kill((int)$pid, SIGTERM);
             }
-            // Give some time for the process to terminate
-            sleep(1);
         }
+        sleep(1);
     }
 
     private function mainLoop() {
