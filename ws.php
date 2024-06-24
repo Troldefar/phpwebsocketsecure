@@ -38,8 +38,29 @@ class CustomWebSocket {
             echo "Killing process $pid using port {$this->port}\n";
             posix_kill((int)$pid, SIGTERM);
         }
-        
+
         sleep(1);
+    }
+
+    private function setupContext() {
+        $context = stream_context_create($this->getStreamContextOptions());
+
+        stream_context_set_option($context, self::WRAPPER, 'crypto_method', STREAM_CRYPTO_METHOD_TLS_SERVER);
+        stream_context_set_option($context, self::WRAPPER, 'capture_peer_cert', true);
+        stream_context_set_option($context, self::WRAPPER, 'capture_peer_cert_chain', true);
+
+        $this->server = stream_socket_server(
+            self::WRAPPER."://$this->address:$this->port", 
+            $errno, 
+            $errstr, 
+            STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, 
+            $context
+        );
+
+        if (!$this->server) die("Error: $errstr ($errno)");
+
+        stream_set_blocking($this->server, false);
+        echo "Server started at $this->address:$this->port\n";
     }
 
     private function mainLoop() {
@@ -51,12 +72,14 @@ class CustomWebSocket {
             if (stream_select($readSockets, $writeSockets, $exceptSockets, 0) > 0) {
                 if (in_array($this->server, $readSockets)) {
                     $client = stream_socket_accept($this->server, 0);
+
                     if ($client) {
                         $this->performHandshake($client);
                         stream_set_blocking($client, false);
                         $this->clients[] = $client;
                         echo self::CLIENT_CONNECTED;
                     }
+                    
                     unset($readSockets[array_search($this->server, $readSockets)]);
                 }
 
@@ -127,28 +150,6 @@ class CustomWebSocket {
             ]
         ];
     }
-
-    private function setupContext() {
-        $context = stream_context_create($this->getStreamContextOptions());
-
-        stream_context_set_option($context, self::WRAPPER, 'crypto_method', STREAM_CRYPTO_METHOD_TLS_SERVER);
-        stream_context_set_option($context, self::WRAPPER, 'capture_peer_cert', true);
-        stream_context_set_option($context, self::WRAPPER, 'capture_peer_cert_chain', true);
-
-        $this->server = stream_socket_server(
-            self::WRAPPER."://$this->address:$this->port", 
-            $errno, 
-            $errstr, 
-            STREAM_SERVER_BIND | STREAM_SERVER_LISTEN, 
-            $context
-        );
-
-        if (!$this->server) die("Error: $errstr ($errno)");
-
-        stream_set_blocking($this->server, false);
-        echo "Server started at $this->address:$this->port\n";
-    }
-
 }
 
 new CustomWebSocket();
