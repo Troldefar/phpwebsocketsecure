@@ -8,7 +8,7 @@ class CustomWebSocket {
 
     private int $port = 12345;
     private string $address = '0.0.0.0';
-    private string $certFile = 'CERT_PATH';
+    private string $certFile = 'CERTIFICATE_PATH';
     private string $keyFile = 'PRIVATE_KEY_PATH';
     private string $SHA1_KEY = 'YOUR_SHA1_KEY';
 
