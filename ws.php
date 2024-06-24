@@ -30,14 +30,15 @@ class CustomWebSocket {
         $cmd = sprintf('lsof -i:%d -t', $this->port);
         $output = shell_exec($cmd);
         if (!$output) return;
-        
+
         $pids = explode("\n", trim($output));
         foreach ($pids as $pid) {
-            if (is_numeric($pid)) {
-                echo "Killing process $pid using port {$this->port}\n";
-                posix_kill((int)$pid, SIGTERM);
-            }
+            if (!is_numeric($pid)) continue;
+
+            echo "Killing process $pid using port {$this->port}\n";
+            posix_kill((int)$pid, SIGTERM);
         }
+        
         sleep(1);
     }
 
