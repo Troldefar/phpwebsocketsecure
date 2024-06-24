@@ -61,7 +61,7 @@ class CustomWebSocket {
                 }
 
                 foreach ($readSockets as $client) {
-                    $data = fread($client, 5000);
+                    $data = fread($client, self::DEFAULT_FILE_READ_LENGTH);
                     if ($data === false || strlen($data) === 0) {
                         $this->disconnectClient($client);
                         continue;
