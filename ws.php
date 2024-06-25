@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 
 class CustomWebSocket {
 
-    private int $port = 12345;
+    private int $port        = 12345;
     private string $address  = '0.0.0.0';
     private string $certFile = 'CERTIFICATE_PATH';
     private string $keyFile  = 'PRIVATE_KEY_PATH';
@@ -26,6 +26,10 @@ class CustomWebSocket {
         $this->mainLoop();
     }
 
+    private function yell(string $string) {
+        echo $string;
+    }
+
     private function checkPortUsage() {
         $cmd = sprintf('lsof -i:%d -t', $this->port);
         $output = shell_exec($cmd);
@@ -35,7 +39,8 @@ class CustomWebSocket {
         foreach ($pids as $pid) {
             if (!is_numeric($pid)) continue;
 
-            echo "Killing process $pid using port {$this->port}\n";
+            $this->yell("Killing process $pid using port {$this->port}\n");
+
             posix_kill((int)$pid, SIGTERM);
         }
 
@@ -60,7 +65,7 @@ class CustomWebSocket {
         if (!$this->server) die("Error: $errstr ($errno)");
 
         stream_set_blocking($this->server, false);
-        echo "Server started at $this->address:$this->port\n";
+        $this->yell("Server started at $this->address:$this->port\n");
     }
 
     private function mainLoop() {
@@ -101,7 +106,9 @@ class CustomWebSocket {
 
     private function performHandshake($client) {
         $request = fread($client, self::DEFAULT_FILE_READ_LENGTH);
-        echo "Request received:\n$request\n";
+
+        $this->yell("Request received:\n$request\n");
+
         preg_match('#Sec-WebSocket-Key: (.*)\r\n#', $request, $matches);
 
         if (!isset($matches[1])) {
@@ -119,25 +126,27 @@ class CustomWebSocket {
         $headers .= "Sec-WebSocket-Accept: $key\r\n\r\n";
 
         fwrite($client, $headers, strlen($headers));
-        echo "Handshake sent:\n$headers\n";
+
+        $this->yell("Handshake sent:\n$headers\n");
     }
 
     private function handleMessage($client, $data) {
-        echo "Received from client: $data\n";
+        $this->yell("Received from client: $data\n");
     }
 
     private function broadcastMessage($message) {
         $response = chr(129) . chr(strlen($message)) . $message;
         foreach ($this->clients as $client) {
             fwrite($client, $response);
-            echo "Sent: $message\n";
+            $this->yell("Sent: $message\n");
         }
     }
 
     private function disconnectClient($client) {
         fclose($client);
         unset($this->clients[array_search($client, $this->clients)]);
-        echo "Client disconnected\n";
+        
+        $this->yell("Client disconnected\n");
     }
 
     private function getStreamContextOptions(): array {
