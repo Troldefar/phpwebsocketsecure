@@ -1,5 +1,5 @@
 # Barebone Websocket Secure 
-## implemented in PHP with a minor frontend
+#### Implemented in PHP with a minor frontend
 
 # Usage 
 php ws.php
