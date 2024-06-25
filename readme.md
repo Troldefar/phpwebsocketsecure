@@ -1,4 +1,5 @@
-# Barebone WSS for php / js
+# Barebone Websocket Secure 
+## implemented in PHP with a minor frontend
 
 # Usage 
 php ws.php
