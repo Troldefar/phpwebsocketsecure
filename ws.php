@@ -23,7 +23,7 @@ class CustomWebSocket {
     public function __construct() {
         $this->checkPortUsage();
         $this->setupContext();
-        $this->mainLoop();
+        $this->main();
     }
 
     private function yell(string $string) {
@@ -68,8 +68,9 @@ class CustomWebSocket {
         $this->yell("Server started at $this->address:$this->port\n");
     }
 
-    private function mainLoop() {
+    private function main() {
         while (true) {
+            sleep(1);
             $readSockets = array_merge([$this->server], $this->clients);
             $writeSockets = null;
             $exceptSockets = null;
@@ -100,7 +101,6 @@ class CustomWebSocket {
             }
 
             $this->broadcastMessage("Now: " . time());
-            sleep(1);
         }
     }
 
@@ -145,7 +145,7 @@ class CustomWebSocket {
     private function disconnectClient($client) {
         fclose($client);
         unset($this->clients[array_search($client, $this->clients)]);
-        
+
         $this->yell("Client disconnected\n");
     }
 
