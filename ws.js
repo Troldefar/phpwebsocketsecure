@@ -1,27 +1,30 @@
-let socket = new WebSocket("wss://YOUR_HOST:12345");
+export default {
+    init: function() {
+        this.ws = new WebSocket("wss://YOUR_HOST:12345");
+    },
+    handler: function() {
 
-socket.onopen = function(event) {
-    console.log("Connection established");
-};
+        const self = this;
 
-socket.onmessage = function(event) {
-    let message = event.data;
-    console.log("Received: " + message);
-    let messagesDiv = document.getElementById("messages");
-    messagesDiv.innerHTML += "<p>" + message + "</p>";
-};
+        this.ws.onopen = function(event) {
+            console.log("Connection established");
+        };
 
-socket.onclose = function(event) {
-    console.log("Connection closed");
-};
+        this.ws.onmessage = function(event) {
+            let message = event.data;
+            console.log(message);
+            self.sendMessage('qwd');
+        };
 
-socket.onerror = function(error) {
-    console.error("WebSocket error: " + error);
-};
+        this.ws.onclose = function(event) {
+            console.log("Connection closed");
+        };
 
-function sendMessage() {
-    let messageInput = document.getElementById("message");
-    let message = messageInput.value;
-    socket.send(message);
-    console.log("Sent: " + message);
+        this.ws.onerror = function(error) {
+            console.error(error);
+        }
+    },
+    sendMessage: function(message) {
+        this.ws.send(message);
+    }
 }
