@@ -6,10 +6,6 @@ class FrameHandler {
     private const NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH   = 126;
     private const NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH = 127;
 
-    public function __construct() {
-
-    }
-
     /**
      * Credits:
      * https://www.openmymind.net/WebSocket-Framing-Masking-Fragmentation-and-More/
@@ -20,24 +16,28 @@ class FrameHandler {
 
         $bytes = array_values($bytes);
 
-        $fin = ($bytes[0] >> 7) & 1;
-        $opcode = $bytes[0] & 0x0F;
+        // $fin = ($bytes[0] >> 7) & 1;
+        // $opcode = $bytes[0] & 0x0F;
+
         $masked = ($bytes[1] >> 7) & 1;
         $payloadLength = $bytes[1] & 127;
 
         $payloadOffset = 2;
 
-        if ($payloadLength === self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) {
-            $payloadLength = ($bytes[2] << 8) | $bytes[3];
-            $mask = array_slice($bytes, 4, 4);
-            $payloadOffset = 8;
-        } elseif ($payloadLength === self::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH) {
-            $payloadLength = ($bytes[2] << 56) | ($bytes[3] << 48) | ($bytes[4] << 40) | ($bytes[5] << 32) | ($bytes[6] << 24) | ($bytes[7] << 16) | ($bytes[8] << 8) | $bytes[9];
-            $mask = array_slice($bytes, 10, 4);
-            $payloadOffset = 14;
-        } else {
-            $mask = array_slice($bytes, 2, 4);
-            $payloadOffset = 6;
+        switch ($payloadLength) {
+            case self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH:
+                $payloadLength = ($bytes[2] << 8) | $bytes[3];
+                $mask = array_slice($bytes, 4, 4);
+                $payloadOffset = 8; 
+                break;
+            case self::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH:
+                $payloadLength = ($bytes[2] << 56) | ($bytes[3] << 48) | ($bytes[4] << 40) | ($bytes[5] << 32) | ($bytes[6] << 24) | ($bytes[7] << 16) | ($bytes[8] << 8) | $bytes[9];
+                $mask = array_slice($bytes, 10, 4);
+                $payloadOffset = 14;
+            default:
+                $mask = array_slice($bytes, 2, 4);
+                $payloadOffset = 6;
+                break;
         }
 
         $payload = array_slice($bytes, $payloadOffset, $payloadLength);
