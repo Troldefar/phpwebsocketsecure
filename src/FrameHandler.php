@@ -66,11 +66,11 @@ class FrameHandler {
 
         $payloadOffset = 2;
 
-        if ($payloadLength === 126) {
+        if ($payloadLength === self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) {
             $payloadLength = ($bytes[2] << 8) | $bytes[3];
             $mask = array_slice($bytes, 4, 4);
             $payloadOffset = 8;
-        } elseif ($payloadLength === 127) {
+        } elseif ($payloadLength === self::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH) {
             $payloadLength = ($bytes[2] << 56) | ($bytes[3] << 48) | ($bytes[4] << 40) | ($bytes[5] << 32) | ($bytes[6] << 24) | ($bytes[7] << 16) | ($bytes[8] << 8) | $bytes[9];
             $mask = array_slice($bytes, 10, 4);
             $payloadOffset = 14;
