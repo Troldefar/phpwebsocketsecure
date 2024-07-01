@@ -13,7 +13,6 @@ class FrameHandler {
 
     public function decodeFrame($data) {
         $bytes = unpack('C*', $data);
-
         $bytes = array_values($bytes);
 
         // $fin = ($bytes[0] >> 7) & 1;
@@ -22,8 +21,22 @@ class FrameHandler {
         $masked = ($bytes[1] >> 7) & 1;
         $payloadLength = $bytes[1] & 127;
 
-        $payloadOffset = 2;
+        $scalars = $this->shiftScalars($payloadLength, $bytes);
 
+        $payload = array_slice($bytes, $scalars['payloadOffset'], $payloadLength);
+
+        if ($masked)
+            for ($i = 0; $i < $payloadLength; $i++)
+                if (isset($payload[$i]))
+                    $payload[$i] ^= $scalars['mask'][$i % 4];
+
+        $decodedData = implode('', array_map('chr', $payload));
+
+        return $decodedData;
+    }
+
+    private function shiftScalars(int $payloadLength, array $bytes): array {
+        $payloadOffset = 2;
         switch ($payloadLength) {
             case self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH:
                 $payloadLength = ($bytes[2] << 8) | $bytes[3];
@@ -39,17 +52,7 @@ class FrameHandler {
                 $payloadOffset = 6;
                 break;
         }
-
-        $payload = array_slice($bytes, $payloadOffset, $payloadLength);
-
-        if ($masked)
-            for ($i = 0; $i < $payloadLength; $i++)
-                if (isset($payload[$i]))
-                    $payload[$i] ^= $mask[$i % 4];
-
-        $decodedData = implode('', array_map('chr', $payload));
-
-        return $decodedData;
+        return compact('payloadOffset', 'mask', 'payloadOffset');
     }
 
     public function decodeFrameDebug($data) {
