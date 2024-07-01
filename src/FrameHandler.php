@@ -13,6 +13,9 @@ class FrameHandler {
 
     public function decodeFrame($data) {
         $bytes = unpack('C*', $data);
+
+        if (empty($bytes)) return;
+
         $bytes = array_values($bytes);
 
         // $fin = ($bytes[0] >> 7) & 1;
@@ -37,7 +40,7 @@ class FrameHandler {
 
     private function shiftScalars(int $payloadLength, array $bytes): array {
         $payloadOffset = 2;
-        
+
         switch ($payloadLength) {
             case self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH:
                 $payloadLength = ($bytes[2] << 8) | $bytes[3];
