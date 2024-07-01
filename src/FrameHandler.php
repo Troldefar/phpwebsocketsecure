@@ -57,7 +57,7 @@ class FrameHandler {
                 break;
         }
 
-        return compact('payloadOffset', 'mask', 'payloadOffset');
+        return compact('payloadOffset', 'mask');
     }
 
     public function decodeFrameDebug($data) {
