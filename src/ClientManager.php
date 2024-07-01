@@ -1,6 +1,7 @@
 <?php
 
 class ClientManager {
+
     private $server;
     private array $clients = [];
     private const CLIENT_CONNECTED = 'Client connected' . PHP_EOL;
@@ -32,6 +33,17 @@ class ClientManager {
 
     public function getServer() {
         return $this->server;
+    }
+
+    public function getClient($client): mixed {
+        $clients = $this->getClients();
+        return $clients[$client] ?? null;
+    }
+
+    public function sendMessageToClient($client, $message) {
+        if (!$this->getClient($client)) return;
+
+        fwrite($client, $message);
     }
 
     /**

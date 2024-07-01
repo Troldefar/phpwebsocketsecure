@@ -1,6 +1,7 @@
 <?php
 
 class HandshakeHandler {
+    
     private string $SHA1_KEY = 'YOUR_SHA1_KEY';
 
     public function performHandshake($client) {
