@@ -37,6 +37,7 @@ class FrameHandler {
 
     private function shiftScalars(int $payloadLength, array $bytes): array {
         $payloadOffset = 2;
+        
         switch ($payloadLength) {
             case self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH:
                 $payloadLength = ($bytes[2] << 8) | $bytes[3];
@@ -52,6 +53,7 @@ class FrameHandler {
                 $payloadOffset = 6;
                 break;
         }
+
         return compact('payloadOffset', 'mask', 'payloadOffset');
     }
 
