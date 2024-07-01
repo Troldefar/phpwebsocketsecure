@@ -10,19 +10,21 @@ class Websocket {
     private MessageHandler $messageHandler;
     private $server;
 
-    public function __construct() {
+    private function __construct() {
         $this->setupServer();
-
-        Logger::yell("Server started at {$this->serverConfig->getAddress()}:{$this->serverConfig->getPort()}\n");
-
         $this->setupAdditionals();
         $this->main();
     }
 
     private function setupServer() {
-        $websocketConfigs = yourWayOfGettingStuff();
+        $websocketConfigs = app()->getConfig()->get('integrations')->websocket;
 
-        $this->serverConfig = new ServerConfig(address: '0.0.0.0', port: 12345, certFile: $websocketConfigs->cert, keyFile: $websocketConfigs->key);
+        $this->serverConfig = new ServerConfig(
+            address: $websocketConfigs->address, 
+            port: $websocketConfigs->port, 
+            certFile: $websocketConfigs->paths->cert, 
+            keyFile: $websocketConfigs->paths->key
+        );
 
         Logger::checkPortUsage($this->serverConfig->getPort());
 
@@ -34,6 +36,8 @@ class Websocket {
         if (!$this->server) die("Error: $errstr ($errno)");
 
         stream_set_blocking($this->server, false);
+
+        Logger::yell("Server started at {$this->serverConfig->getAddress()}:{$this->serverConfig->getPort()}\n");
     }
 
     private function setupAdditionals() {
@@ -45,6 +49,7 @@ class Websocket {
     private function main() {
         while (true) {
             sleep(1);
+
             $readSockets = array_merge([$this->clientManager->getServer()], $this->clientManager->getClients());
             $writeSockets = null;
             $exceptSockets = null;
@@ -59,7 +64,6 @@ class Websocket {
 
                 foreach ($readSockets as $client) {
                     $data = fread($client, 5000);
-                    $this->clientManager->removePassiveClient($client, $data);
                     $this->messageHandler->handleMessage($client, $data);
                 }
             }
@@ -68,13 +72,17 @@ class Websocket {
         }
     }
 
-    public static function getInstance() {
+    public static function getInstance(): Websocket {
         if (!self::$instance) self::$instance = new Websocket();
         return self::$instance;
     }
 
     public function getClientManager(): ClientManager {
         return $this->clientManager;
+    }
+
+    public static function kill() {
+        posix_kill(app()->getConfig()->get('integrations')->websocket->address, SIGTERM);
     }
 
 }

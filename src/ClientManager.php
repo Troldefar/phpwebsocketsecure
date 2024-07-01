@@ -16,6 +16,7 @@ class ClientManager {
 
         stream_set_blocking($client, false);
         $this->clients[] = $client;
+
         echo self::CLIENT_CONNECTED;
         return $client;
     }
@@ -26,6 +27,10 @@ class ClientManager {
 
         echo "Client disconnected\n";
     }
+
+    /**
+     * @return [\resource]
+     */
 
     public function getClients(): array {
         return $this->clients;
@@ -40,15 +45,16 @@ class ClientManager {
         return $clients[$client] ?? null;
     }
 
-    public function sendMessageToClient($client, $message) {
-        if (!$this->getClient($client)) return;
+    public function sendMessageToClient($client, $message): bool|int {
+        if (!$this->getClient($client)) return false;
 
-        fwrite($client, $message);
+        return fwrite($client, $message);
     }
 
     /**
      * Enable if you want to remove passives
      */
+
     public function removePassiveClient($client, $data) {
         return;
         
