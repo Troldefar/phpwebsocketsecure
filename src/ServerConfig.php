@@ -28,7 +28,7 @@ class ServerConfig {
 
     public function getBackendClientStreamContext() {
         return stream_context_create([
-            'ssl' => [
+            self::WRAPPER => [
                 'local_cert' => $this->certFile,
                 'local_pk' => $this->keyFile,
                 'allow_self_signed' => false,

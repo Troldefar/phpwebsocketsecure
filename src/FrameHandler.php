@@ -130,7 +130,7 @@ class FrameHandler {
         } elseif ($length <= 65535) {
             $frame .= chr(0x80 | self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) . pack(self::PACK_FORMAT_ARG_UNSIGNED_SHORT_BIG_ENDIAN, $length);
         } else {
-            $frame .= chr(0x80 | self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) . pack(self::PACK_FORMAT_ARG_UNSIGNED_LONG_LONG, 0, $length);
+            $frame .= chr(0x80 | self::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH) . pack(self::PACK_FORMAT_ARG_UNSIGNED_LONG_LONG, 0, $length);
         }
 
         $mask = [];
