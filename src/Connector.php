@@ -43,15 +43,7 @@ class Connector {
         $websocketConfigs = app()->getConfig()->get('integrations')->websocket;
         $key = base64_encode($websocketConfigs->sha1key);
 
-        $request = "GET / HTTP/1.1\r\n";
-        $request .= "Host: {$websocketConfigs->address}:{$websocketConfigs->port}\r\n";
-        $request .= "Upgrade: websocket\r\n";
-        $request .= "Connection: Upgrade\r\n";
-        $request .= "Sec-WebSocket-Key: $key\r\n";
-        $request .= "Sec-WebSocket-Version: 13\r\n";
-        $request .= "\r\n";
-
-        fwrite($client, $request);
+        fwrite($client, (new HandshakeHandler())->prepareBackendHeaders($key, $websocketConfigs));
 
         $response = fread($client, 1024);
 

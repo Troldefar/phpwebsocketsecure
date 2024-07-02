@@ -12,6 +12,18 @@ class HandshakeHandler {
         return $headers;
     }
 
+    public function prepareBackendHeaders(string $key, object $websocketConfigs): string {
+        $request = "GET / HTTP/1.1\r\n";
+        $request .= "Host: {$websocketConfigs->address}:{$websocketConfigs->port}\r\n";
+        $request .= "Upgrade: websocket\r\n";
+        $request .= "Connection: Upgrade\r\n";
+        $request .= "Sec-WebSocket-Key: $key\r\n";
+        $request .= "Sec-WebSocket-Version: 13\r\n";
+        $request .= "\r\n";
+
+        return $request;
+    }
+
     public function performHandshake($client) {
         $request = fread($client, 5000);
         Logger::yell("Request received:\n$request\n");
