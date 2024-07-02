@@ -1,5 +1,7 @@
 <?php
 
+namespace app\core\src\websocket;
+
 class Logger {
     public static function yell(string $message) {
         echo $message;

@@ -1,5 +1,7 @@
 <?php
 
+namespace app\core\src\websocket;
+
 class FrameHandler {
 
     private const DEFAULT_OFFSET = 7;
@@ -39,8 +41,6 @@ class FrameHandler {
     }
 
     private function shiftScalars(int $payloadLength, array $bytes): array {
-        $payloadOffset = 2;
-
         switch ($payloadLength) {
             case self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH:
                 $payloadLength = ($bytes[2] << 8) | $bytes[3];

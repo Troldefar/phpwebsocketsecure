@@ -1,5 +1,7 @@
 <?php
 
+namespace app\core\src\websocket;
+
 class Websocket {
 
     private static ?Websocket $instance = null;
@@ -67,9 +69,11 @@ class Websocket {
                     $this->messageHandler->handleMessage($client, $data);
                 }
             }
-
-            $this->messageHandler->broadcastMessage($this->clientManager->getClients(), "Now: " . time());
         }
+    }
+
+    public function messageTo($client) {
+        $this->messageHandler->messageClient($client, "Now: " . time());
     }
 
     public static function getInstance(): Websocket {
