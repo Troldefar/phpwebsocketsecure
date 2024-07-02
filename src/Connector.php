@@ -56,31 +56,6 @@ class Connector {
     }
 
     private static function sendWebSocketMessage($client, $message) {
-        fwrite($client, self::encodeWebSocketFrame($message));
-    }
-
-    private static function encodeWebSocketFrame($message) {
-        $length = strlen($message);
-        $frame = chr(129);
-
-        if ($length <= 125) {
-            $frame .= chr(0x80 | $length);
-        } elseif ($length <= 65535) {
-            $frame .= chr(0x80 | 126) . pack('n', $length);
-        } else {
-            $frame .= chr(0x80 | 127) . pack('J', 0, $length);
-        }
-
-        $mask = [];
-
-        for ($i = 0; $i < 4; $i++)
-            $mask[] = mt_rand(0, 255);
-
-        $frame .= implode(array_map('chr', $mask));
-
-        for ($i = 0; $i < $length; $i++)
-            $frame .= chr(ord($message[$i]) ^ $mask[$i % 4]);
-
-        return $frame;
+        fwrite($client, FrameHandler::encodeWebSocketFrame($message));
     }
 }
