@@ -1,7 +1,5 @@
 <?php
 
-namespace app\core\src\websocket;
-
 class HandshakeHandler {
     
     public function prepareHeaders(string $key): string {

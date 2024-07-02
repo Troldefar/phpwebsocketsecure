@@ -1,7 +1,5 @@
 <?php
 
-namespace app\core\src\websocket;
-
 class ServerConfig {
     
     private const WRAPPER = 'ssl';

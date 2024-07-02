@@ -1,7 +1,5 @@
 <?php
 
-namespace app\core\src\websocket;
-
 class Connector {
 
     public static function sendToServer($message = '123456') {

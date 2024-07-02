@@ -1,7 +1,5 @@
 <?php
 
-namespace app\core\src\websocket;
-
 class Websocket {
 
     private static ?Websocket $instance = null;

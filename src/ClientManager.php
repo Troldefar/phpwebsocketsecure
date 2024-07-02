@@ -1,7 +1,5 @@
 <?php
 
-namespace app\core\src\websocket;
-
 class ClientManager {
 
     private $server;

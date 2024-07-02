@@ -1,7 +1,5 @@
 <?php
 
-namespace app\core\src\websocket;
-
 class FrameHandler {
 
     private const DEFAULT_OFFSET = 7;

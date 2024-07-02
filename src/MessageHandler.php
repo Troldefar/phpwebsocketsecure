@@ -1,7 +1,5 @@
 <?php
 
-namespace app\core\src\websocket;
-
 class MessageHandler {
 
     private FrameHandler $frameHandler;
