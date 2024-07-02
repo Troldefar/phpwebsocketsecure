@@ -6,6 +6,8 @@ class FrameHandler {
     private const NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH   = 126;
     private const NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH = 127;
     private const UNPACK_FORMAT_ARG_UNSIGNED_CHARS_ENTIRE_STRING = 'C*';
+    private const PACK_FORMAT_ARG_UNSIGNED_SHORT_BIG_ENDIAN = 'n';
+    private const PACK_FORMAT_ARG_UNSIGNED_LONG_LONG = 'J';
 
     /**
      * Credits:
@@ -126,9 +128,9 @@ class FrameHandler {
         if ($length <= 125) {
             $frame .= chr(0x80 | $length);
         } elseif ($length <= 65535) {
-            $frame .= chr(0x80 | self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) . pack('n', $length);
+            $frame .= chr(0x80 | self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) . pack(self::PACK_FORMAT_ARG_UNSIGNED_SHORT_BIG_ENDIAN, $length);
         } else {
-            $frame .= chr(0x80 | self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) . pack('J', 0, $length);
+            $frame .= chr(0x80 | self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) . pack(self::PACK_FORMAT_ARG_UNSIGNED_LONG_LONG, 0, $length);
         }
 
         $mask = [];
