@@ -23,8 +23,9 @@ class Connector {
         );
 
         $context = $serverConfig->getBackendClientStreamContext();
+        $address = $serverConfig->getAddress() . ':' . $serverConfig->getPort();
 
-        $client = stream_socket_client('ssl://'. $websocketConfigs->address .':' . $websocketConfigs->port, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
+        $client = stream_socket_client('ssl://' . $address, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
 
         if (!$client) {
             echo "Failed to connect: $errstr ($errno)\n";
