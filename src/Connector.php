@@ -12,17 +12,17 @@ class Connector {
     }
 
     private static function tryConnect(): mixed {
+
         $websocketConfigs = app()->getConfig()->get('integrations')->websocket;
 
-        $context = stream_context_create([
-            'ssl' => [
-                'local_cert' => $websocketConfigs->paths->cert,
-                'local_pk' => $websocketConfigs->paths->key,
-                'allow_self_signed' => false,
-                'verify_peer' => false,
-                'crypto_method' => STREAM_CRYPTO_METHOD_TLS_CLIENT
-            ]
-        ]);
+        $serverConfig = new ServerConfig(
+            address: $websocketConfigs->address, 
+            port: $websocketConfigs->port, 
+            certFile: $websocketConfigs->paths->cert,
+            keyFile: $websocketConfigs->paths->key
+        );
+
+        $context = $serverConfig->getBackendClientStreamContext();
 
         $client = stream_socket_client('ssl://'. $websocketConfigs->address .':' . $websocketConfigs->port, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
 
@@ -58,4 +58,5 @@ class Connector {
     private static function sendWebSocketMessage($client, $message) {
         fwrite($client, FrameHandler::encodeWebSocketFrame($message));
     }
+
 }

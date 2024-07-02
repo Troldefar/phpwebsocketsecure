@@ -13,7 +13,7 @@ class ServerConfig {
     }
 
     public function getStreamContext() {
-        $context = stream_context_create([
+        return stream_context_create([
             self::WRAPPER => [
                 'local_cert' => $this->certFile,
                 'local_pk' => $this->keyFile,
@@ -24,8 +24,18 @@ class ServerConfig {
                 'capture_peer_cert_chain' => true
             ]
         ]);
+    }
 
-        return $context;
+    public function getBackendClientStreamContext() {
+        return stream_context_create([
+            'ssl' => [
+                'local_cert' => $this->certFile,
+                'local_pk' => $this->keyFile,
+                'allow_self_signed' => false,
+                'verify_peer' => false,
+                'crypto_method' => STREAM_CRYPTO_METHOD_TLS_CLIENT
+            ]
+        ]);
     }
 
     public function getAddress(): string {
