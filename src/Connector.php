@@ -43,7 +43,7 @@ class Connector {
         $websocketConfigs = app()->getConfig()->get('integrations')->websocket;
         $key = base64_encode($websocketConfigs->sha1key);
 
-        fwrite($client, (new HandshakeHandler())->prepareBackendHeaders($key, $websocketConfigs));
+        fwrite($client, (new HandshakeHandler())->prepareBackendClientHeaders($key, $websocketConfigs));
 
         $response = fread($client, 1024);
 

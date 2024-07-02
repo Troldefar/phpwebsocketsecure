@@ -12,7 +12,7 @@ class HandshakeHandler {
         return $headers;
     }
 
-    public function prepareBackendHeaders(string $key, object $websocketConfigs): string {
+    public function prepareBackendClientHeaders(string $key, object $websocketConfigs): string {
         $request = "GET / HTTP/1.1\r\n";
         $request .= "Host: {$websocketConfigs->address}:{$websocketConfigs->port}\r\n";
         $request .= "Upgrade: websocket\r\n";
