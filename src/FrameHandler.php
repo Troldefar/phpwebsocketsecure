@@ -5,6 +5,7 @@ class FrameHandler {
     private const DEFAULT_OFFSET = 7;
     private const NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH   = 126;
     private const NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH = 127;
+    private const UNPACK_FORMAT_ARG_UNSIGNED_CHARS_ENTIRE_STRING = 'C*';
 
     /**
      * Credits:
@@ -12,7 +13,7 @@ class FrameHandler {
      */
 
     public function decodeFrame($data) {
-        $bytes = unpack('C*', $data);
+        $bytes = unpack(self::UNPACK_FORMAT_ARG_UNSIGNED_CHARS_ENTIRE_STRING, $data);
 
         if (empty($bytes)) return;
 
