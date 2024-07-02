@@ -13,7 +13,7 @@ export default {
         this.ws.onmessage = function(event) {
             let message = event.data;
             console.log(message);
-            self.sendMessage('qwd');
+            self.sendMessage(new Date().toLocaleTimeString());
         };
 
         this.ws.onclose = function(event) {

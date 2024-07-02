@@ -1,11 +1,21 @@
 <?php
 
+namespace app\core\src\websocket;
+
 class Connector {
 
-    public static function sendToServer($message = 'qwd') {
+    public static function sendToServer($message = '123456') {
+        $client = self::tryConnect();
+        if (!$client) return;
+
+        self::sendWebSocketMessage($client, $message);
+
+        fclose($client);
+    }
+
+    private static function tryConnect(): mixed {
         $websocketConfigs = app()->getConfig()->get('integrations')->websocket;
 
-        // Create SSL context for the client
         $context = stream_context_create([
             'ssl' => [
                 'local_cert' => $websocketConfigs->paths->cert,
@@ -20,19 +30,15 @@ class Connector {
 
         if (!$client) {
             echo "Failed to connect: $errstr ($errno)\n";
-            return;
+            return false;
         }
-
-        echo "Connected to WebSocket server\n";
 
         if (!self::performHandshake($client)) {
             fclose($client);
-            return;
+            return false;
         }
 
-        self::sendWebSocketMessage($client, $message);
-
-        fclose($client);
+        return $client;
     }
 
     private static function performHandshake($client) {
@@ -52,7 +58,7 @@ class Connector {
         $response = fread($client, 1024);
 
         if (!preg_match('#Sec-WebSocket-Accept:\s(.*)$#mUsi', $response, $matches)) {
-            echo "Invalid WebSocket handshake response:\n$response\n";
+            app()->getResponse()->unauthorized("Invalid WebSocket handshake response:\n$response\n");
             return false;
         }
 
@@ -60,8 +66,7 @@ class Connector {
     }
 
     private static function sendWebSocketMessage($client, $message) {
-        $frame = self::encodeWebSocketFrame($message);
-        fwrite($client, $frame);
+        fwrite($client, self::encodeWebSocketFrame($message));
     }
 
     private static function encodeWebSocketFrame($message) {
@@ -69,14 +74,22 @@ class Connector {
         $frame = chr(129);
 
         if ($length <= 125) {
-            $frame .= chr($length);
+            $frame .= chr(0x80 | $length);
         } elseif ($length <= 65535) {
-            $frame .= chr(126) . pack('n', $length);
+            $frame .= chr(0x80 | 126) . pack('n', $length);
         } else {
-            $frame .= chr(127) . pack('NN', 0, $length);
+            $frame .= chr(0x80 | 127) . pack('J', 0, $length);
         }
 
-        $frame .= $message;
+        $mask = [];
+
+        for ($i = 0; $i < 4; $i++)
+            $mask[] = mt_rand(0, 255);
+
+        $frame .= implode(array_map('chr', $mask));
+
+        for ($i = 0; $i < $length; $i++)
+            $frame .= chr(ord($message[$i]) ^ $mask[$i % 4]);
 
         return $frame;
     }
