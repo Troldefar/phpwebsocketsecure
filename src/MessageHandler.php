@@ -10,7 +10,6 @@ class MessageHandler {
     
     public function handleMessage($client, $data) {
         $data = $this->frameHandler->decodeFrame($data);
-        var_dump($client, $data);
         Logger::yell('Received from client: ' . $data . PHP_EOL);
     }
 
@@ -20,6 +19,6 @@ class MessageHandler {
     }
 
     public function messageClient($client, $message) {
-        fwrite($client, chr(129) . chr(strlen($message)) . $message);
+        fwrite($client, $this->frameHandler->encodeWebSocketFrame($message));
     }
 }
