@@ -25,5 +25,8 @@ class Constants {
 
     public const DEFAULT_CLIENT_MESSAGE = '123456';
 
+    public static function getConfigs(): object {
+        return app()?->getConfig()?->get('integrations')?->websocket;
+    }
 
 }

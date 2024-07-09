@@ -17,7 +17,7 @@ class Websocket {
     }
 
     private function setupServer() {
-        $websocketConfigs = app()->getConfig()->get('integrations')->websocket;
+        $websocketConfigs = Constants::getConfigs();
 
         $this->serverConfig = new ServerConfig(
             address: $websocketConfigs->address, 
@@ -86,7 +86,7 @@ class Websocket {
     }
 
     public static function kill() {
-        posix_kill(app()->getConfig()->get('integrations')->websocket->address, SIGTERM);
+        posix_kill(Constants::getConfigs()->address, SIGTERM);
     }
 
 }

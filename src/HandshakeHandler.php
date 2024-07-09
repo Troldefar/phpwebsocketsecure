@@ -41,7 +41,7 @@ class HandshakeHandler {
         $key = base64_encode(
             pack(
                 Constants::PACK_FORMAT_ARG_HEX_ENTIRE_STRING, 
-                sha1($matches[1] . app()->getConfig()->get('integrations')->websocket->sha1key)
+                sha1($matches[1] . Constants::getConfigs()->sha1key)
             )
         );
 

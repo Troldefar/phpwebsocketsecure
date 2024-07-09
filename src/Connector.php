@@ -13,7 +13,7 @@ class Connector {
 
     private static function tryConnect(): mixed {
 
-        $websocketConfigs = app()->getConfig()->get('integrations')->websocket;
+        $websocketConfigs = Constants::getConfigs();
 
         $serverConfig = new ServerConfig(
             address: $websocketConfigs->address, 
@@ -41,7 +41,8 @@ class Connector {
     }
 
     private static function performHandshake($client) {
-        $websocketConfigs = app()->getConfig()->get('integrations')->websocket;
+        $websocketConfigs = Constants::getConfigs();
+
         $key = base64_encode(openssl_random_pseudo_bytes(16));
 
         $handshaker = new HandshakeHandler();
