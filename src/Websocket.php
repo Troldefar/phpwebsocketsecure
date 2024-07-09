@@ -69,7 +69,7 @@ class Websocket {
     }
 
     public function broadcast(array $clients) {
-        $this->messageHandler->broadcastMessage($clients, 'qwd');
+        $this->messageHandler->broadcastMessage($clients, 'SOME_RANDOM_MESSAGE');
     }
 
     public function messageTo($client) {
