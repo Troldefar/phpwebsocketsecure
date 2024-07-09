@@ -8,22 +8,23 @@ class Websocket {
     private ClientManager $clientManager;
     private HandshakeHandler $handshakeHandler;
     private MessageHandler $messageHandler;
+    private object $configs;
     private $server;
 
     private function __construct() {
+        $this->configs = Constants::getConfigs();
         $this->setupServer();
         $this->setupAdditionals();
         $this->main();
     }
 
     private function setupServer() {
-        $websocketConfigs = Constants::getConfigs();
 
         $this->serverConfig = new ServerConfig(
-            address: $websocketConfigs->address, 
-            port: $websocketConfigs->port, 
-            certFile: $websocketConfigs->paths->cert, 
-            keyFile: $websocketConfigs->paths->key
+            address: $this->configs->address, 
+            port: $this->configs->port, 
+            certFile: $this->configs->paths->cert, 
+            keyFile: $this->configs->paths->key
         );
 
         Logger::checkPortUsage($this->serverConfig->getPort());
@@ -83,10 +84,6 @@ class Websocket {
 
     public function getClientManager(): ClientManager {
         return $this->clientManager;
-    }
-
-    public static function kill() {
-        posix_kill(Constants::getConfigs()->address, SIGTERM);
     }
 
 }
