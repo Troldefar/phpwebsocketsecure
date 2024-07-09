@@ -36,8 +36,6 @@ class Websocket {
         if (!$this->server) die("Error: $errstr ($errno)");
 
         stream_set_blocking($this->server, false);
-
-        Logger::yell("Server started at {$this->serverConfig->getAddress()}:{$this->serverConfig->getPort()}\n");
     }
 
     private function setupAdditionals() {
@@ -68,6 +66,10 @@ class Websocket {
                 }
             }
         }
+    }
+
+    public function broadcast(array $clients) {
+        $this->messageHandler->broadcastMessage($clients, 'qwd');
     }
 
     public function messageTo($client) {

@@ -2,20 +2,13 @@
 
 class FrameHandler {
 
-    private const DEFAULT_OFFSET = 7;
-    private const NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH   = 126;
-    private const NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH = 127;
-    private const UNPACK_FORMAT_ARG_UNSIGNED_CHARS_ENTIRE_STRING = 'C*';
-    private const PACK_FORMAT_ARG_UNSIGNED_SHORT_BIG_ENDIAN = 'n';
-    private const PACK_FORMAT_ARG_UNSIGNED_LONG_LONG = 'J';
-
     /**
      * Credits:
      * https://www.openmymind.net/WebSocket-Framing-Masking-Fragmentation-and-More/
      */
 
     public function decodeFrame($data) {
-        $bytes = unpack(self::UNPACK_FORMAT_ARG_UNSIGNED_CHARS_ENTIRE_STRING, $data);
+        $bytes = unpack(Constants::UNPACK_FORMAT_ARG_UNSIGNED_CHARS_ENTIRE_STRING, $data);
 
         if (empty($bytes)) return;
 
@@ -36,19 +29,17 @@ class FrameHandler {
                 if (isset($payload[$i]))
                     $payload[$i] ^= $scalars['mask'][$i % 4];
 
-        $decodedData = implode('', array_map('chr', $payload));
-
-        return $decodedData;
+        return implode('', array_map('chr', $payload));
     }
 
     private function shiftScalars(int $payloadLength, array $bytes): array {
         switch ($payloadLength) {
-            case self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH:
+            case Constants::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH:
                 $payloadLength = ($bytes[2] << 8) | $bytes[3];
                 $mask = array_slice($bytes, 4, 4);
                 $payloadOffset = 8; 
                 break;
-            case self::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH:
+            case Constants::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH:
                 $payloadLength = ($bytes[2] << 56) | ($bytes[3] << 48) | ($bytes[4] << 40) | ($bytes[5] << 32) | ($bytes[6] << 24) | ($bytes[7] << 16) | ($bytes[8] << 8) | $bytes[9];
                 $mask = array_slice($bytes, 10, 4);
                 $payloadOffset = 14;
@@ -75,11 +66,11 @@ class FrameHandler {
 
         $payloadOffset = 2;
 
-        if ($payloadLength === self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) {
+        if ($payloadLength === Constants::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) {
             $payloadLength = ($bytes[2] << 8) | $bytes[3];
             $mask = array_slice($bytes, 4, 4);
             $payloadOffset = 8;
-        } elseif ($payloadLength === self::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH) {
+        } elseif ($payloadLength === Constants::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH) {
             $payloadLength = ($bytes[2] << 56) | ($bytes[3] << 48) | ($bytes[4] << 40) | ($bytes[5] << 32) | ($bytes[6] << 24) | ($bytes[7] << 16) | ($bytes[8] << 8) | $bytes[9];
             $mask = array_slice($bytes, 10, 4);
             $payloadOffset = 14;
@@ -123,14 +114,14 @@ class FrameHandler {
 
      public static function encodeWebSocketFrame($message) {
         $length = strlen($message);
-        $frame = chr(129);
+        $frame = chr(Constants::FINAL_TEXT_FRAME);
 
         if ($length <= 125) {
             $frame .= chr(0x80 | $length);
         } elseif ($length <= 65535) {
-            $frame .= chr(0x80 | self::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) . pack(self::PACK_FORMAT_ARG_UNSIGNED_SHORT_BIG_ENDIAN, $length);
+            $frame .= chr(0x80 | Constants::NEXT_TWO_BYTES_IS_PAYLOAD_LENGTH) . pack(Constants::PACK_FORMAT_ARG_UNSIGNED_SHORT_BIG_ENDIAN, $length);
         } else {
-            $frame .= chr(0x80 | self::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH) . pack(self::PACK_FORMAT_ARG_UNSIGNED_LONG_LONG, 0, $length);
+            $frame .= chr(0x80 | Constants::NEXT_EIGHT_BYTES_IS_PAYLOAD_LENGTH) . pack(Constants::PACK_FORMAT_ARG_UNSIGNED_LONG_LONG, 0, $length);
         }
 
         $mask = [];

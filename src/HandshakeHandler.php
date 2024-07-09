@@ -28,15 +28,22 @@ class HandshakeHandler {
         $request = fread($client, 5000);
         Logger::yell("Request received:\n$request\n");
 
-        preg_match('#Sec-WebSocket-Key: (.*)\r\n#', $request, $matches);
+        var_dump($request);
+
+        preg_match(Constants::WEBSOCKET_HEADER_KEY, $request, $matches);
 
         if (!isset($matches[1])) {
             Logger::yell($request);
-            Logger::yell('WebSocket key not found in the request' . PHP_EOL);
+            Logger::yell(Constants::WEBSOCKET_HEADER_KEY_NOT_FOUND);
             return false;
         }
 
-        $key = base64_encode(pack('H*', sha1($matches[1] . app()->getConfig()->get('integrations')->websocket->sha1key)));
+        $key = base64_encode(
+            pack(
+                Constants::PACK_FORMAT_ARG_HEX_ENTIRE_STRING, 
+                sha1($matches[1] . app()->getConfig()->get('integrations')->websocket->sha1key)
+            )
+        );
 
         $headers = $this->prepareHeaders($key);
 

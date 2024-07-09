@@ -4,28 +4,24 @@ class ClientManager {
 
     private $server;
     private array $clients = [];
-    private const CLIENT_CONNECTED = 'Client connected' . PHP_EOL;
 
     public function __construct($server) {
         $this->server = $server;
     }
 
     public function acceptClient() {
-        $client = stream_socket_accept($this->server, 0);
+        $client = stream_socket_accept($this->server, 500);
         if (!$client) return;
 
         stream_set_blocking($client, false);
         $this->clients[] = $client;
 
-        echo self::CLIENT_CONNECTED;
         return $client;
     }
 
     public function removeClient($client) {
         fclose($client);
         unset($this->clients[array_search($client, $this->clients)]);
-
-        echo "Client disconnected\n";
     }
 
     /**

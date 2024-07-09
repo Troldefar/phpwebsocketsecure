@@ -2,7 +2,7 @@
 
 class Connector {
 
-    public static function sendToServer($message = '123456') {
+    public static function sendToServer($message = Constants::DEFAULT_CLIENT_MESSAGE) {
         $client = self::tryConnect();
         if (!$client) return;
 
@@ -28,7 +28,7 @@ class Connector {
         $client = stream_socket_client('ssl://' . $address, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
 
         if (!$client) {
-            echo "Failed to connect: $errstr ($errno)\n";
+            app()->getResponse()->ok("Failed to connect: $errstr ($errno)\n");
             return false;
         }
 
@@ -42,18 +42,18 @@ class Connector {
 
     private static function performHandshake($client) {
         $websocketConfigs = app()->getConfig()->get('integrations')->websocket;
-        $key = base64_encode($websocketConfigs->sha1key);
+        $key = base64_encode(openssl_random_pseudo_bytes(16));
 
-        fwrite($client, (new HandshakeHandler())->prepareBackendClientHeaders($key, $websocketConfigs));
+        $handshaker = new HandshakeHandler();
+        $headers = $handshaker->prepareBackendClientHeaders($key, $websocketConfigs);
 
+        fwrite($client, $headers);
         $response = fread($client, 1024);
 
-        if (!preg_match('#Sec-WebSocket-Accept:\s(.*)$#mUsi', $response, $matches)) {
-            app()->getResponse()->unauthorized("Invalid WebSocket handshake response:\n$response\n");
-            return false;
-        }
-
-        return true;
+        if (preg_match(Constants::ACK_RESPONSE, $response, $matches)) return true;
+        
+        Logger::yell(Constants::INVALID_HANDSHAKE_RESPONSE . $response);
+        return false;
     }
 
     private static function sendWebSocketMessage($client, $message) {
