@@ -18,7 +18,7 @@ class MessageHandler {
             fwrite($client, chr(Constants::FINAL_TEXT_FRAME) . chr(strlen($message)) . $message);
     }
 
-    public function messageClient($client, $message) {
+    public function messageClient($client, string $message) {
         fwrite($client, $this->frameHandler->encodeWebSocketFrame($message));
     }
 }

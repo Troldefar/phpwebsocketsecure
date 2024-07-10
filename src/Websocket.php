@@ -73,8 +73,8 @@ class Websocket {
         $this->messageHandler->broadcastMessage($clients, 'SOME_RANDOM_MESSAGE');
     }
 
-    public function messageTo($client) {
-        $this->messageHandler->messageClient($client, "Now: " . time());
+    public function messageTo($client, string $message) {
+        $this->messageHandler->messageClient($client, $message);
     }
 
     public static function getInstance(): Websocket {
