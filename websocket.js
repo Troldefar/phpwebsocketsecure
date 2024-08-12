@@ -4,19 +4,19 @@ window[appName].websocket = {
     },
     handler: async function() {
 
-        const id = await $.get('/user');
+        const id = 1; // Your ID or whatever identifier u need
 
         const self = this;
 
         this.ws.onopen = function(event) {
             console.log("Connection established");
-            self.sendMessage(JSON.stringify({type: 'identifier', 'id': id.responseJSON}));
+            self.sendMessage(JSON.stringify({type: 'identifier', id}));
         };
 
         this.ws.onmessage = async function(event) {
             let message = event.data;
             self.handleServerPacket(message);
-            self.sendMessage(JSON.stringify({type: 'listener', 'id': id.responseJSON}));
+            self.sendMessage(JSON.stringify({type: 'listener', id}));
         };
 
         this.ws.onclose = function(event) {
