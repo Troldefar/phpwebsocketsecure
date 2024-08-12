@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Signal dispatcher
+ */
+
 namespace ws\websocket\src;
 
 class Connector {
