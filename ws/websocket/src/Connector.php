@@ -1,12 +1,10 @@
 <?php
 
-/**
- * Signal dispatcher
- */
-
 namespace ws\websocket\src;
 
 class Connector {
+
+    private const WAIT_FOR_MESSAGE_KEY = 'wait';
 
     public static function sendToServer(mixed $message = Constants::DEFAULT_CLIENT_MESSAGE) {
         $client = self::tryConnect();
@@ -14,7 +12,36 @@ class Connector {
 
         self::sendWebSocketMessage($client, $message);
 
+        if (str_contains($message, self::WAIT_FOR_MESSAGE_KEY)) return self::waitForMessage($client);
+
         fclose($client);
+    }
+
+    private static function waitForMessage($client) {
+        return self::waitForResponse($client);
+    }
+
+    /**
+     * In case you want something back
+     */
+
+    private static function waitForResponse($client) {
+        $startTime = time();
+        $timeout = 10;
+        $buffer = '';
+
+        while (time() - $startTime < $timeout) {
+            $data = self::getWebsocketMessage($client);
+
+            if ($data) {
+                $buffer .= $data;
+                break;
+            }
+
+            usleep(500000);
+        }
+
+        return $buffer;
     }
 
     private static function tryConnect(): mixed {
@@ -65,6 +92,10 @@ class Connector {
 
     private static function sendWebSocketMessage($client, $message) {
         fwrite($client, FrameHandler::encodeWebSocketFrame($message));
+    }
+
+    private static function getWebsocketMessage($client) {
+        return fread($client, 5000);
     }
 
 }

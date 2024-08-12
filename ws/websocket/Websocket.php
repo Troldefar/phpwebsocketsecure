@@ -86,18 +86,27 @@ class Websocket {
 
             if (!$encode) continue;
 
-            if ($encode->type === 'identifier' && isset($encode->id)) {
-                $this->clientManager->setClientByID($encode->id, $client);
-            } else if ($encode->type === 'update' && isset($encode->clientID)) {
-                $message = 'update'.$encode->message;
-                $tmpClient = $this->getClientManager()->getClient($encode->clientID);
-                $this->messageTo($tmpClient, $message);
+            switch ($encode->type) {
+                case 'identifier':
+                    if (isset($encode->id))
+                        $this->clientManager->setClientByID($encode->id, $client);
+                    break;
+                case 'update':
+                    if (isset($encode->clientID)) {
+                        $message = 'update' . $encode->message;
+                        $tmpClient = $this->getClientManager()->getClient($encode->clientID);
+                        $this->messageTo($tmpClient, $message);
+                    }
+                    break;
+                case 'getClients':
+                    $this->messageTo($client, json_encode(array_keys($this->getClientManager()->getClients())));
+                    break;
             }
         }
     }
 
     public function broadcast(array $clients) {
-        $this->messageHandler->broadcastMessage($clients, 'SOME_RANDOM_MESSAGE');
+        $this->messageHandler->broadcastMessage($clients, 'Pong');
     }
 
     public function messageTo($client, string $message) {
