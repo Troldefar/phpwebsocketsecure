@@ -1,8 +1,10 @@
 <?php
 
+namespace app\core\src\websocket\src;
+
 class Connector {
 
-    public static function sendToServer($message = Constants::DEFAULT_CLIENT_MESSAGE) {
+    public static function sendToServer(mixed $message = Constants::DEFAULT_CLIENT_MESSAGE) {
         $client = self::tryConnect();
         if (!$client) return;
 
@@ -25,7 +27,7 @@ class Connector {
         $context = $serverConfig->getBackendClientStreamContext();
         $address = $serverConfig->getAddress() . ':' . $serverConfig->getPort();
 
-        $client = @stream_socket_client('ssl://' . $address, $errno, $errstr, 30, STREAM_CLIENT_CONNECT, $context);
+        $client = stream_socket_client('ssl://' . $address, $errno, $errstr, null, STREAM_CLIENT_CONNECT, $context);
 
         if (!$client) {
             app()->getResponse()->ok("Failed to connect: $errstr ($errno)\n");
@@ -49,7 +51,7 @@ class Connector {
         $headers = $handshaker->prepareBackendClientHeaders($key, $websocketConfigs);
 
         fwrite($client, $headers);
-        $response = fread($client, 1024);
+        $response = fread($client, 5000);
 
         if (preg_match(Constants::ACK_RESPONSE, $response, $matches)) return true;
         

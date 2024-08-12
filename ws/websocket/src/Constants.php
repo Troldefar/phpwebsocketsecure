@@ -1,5 +1,7 @@
 <?php
 
+namespace app\core\src\websocket\src;
+
 class Constants {
 
     public const DEFAULT_OFFSET = 7;

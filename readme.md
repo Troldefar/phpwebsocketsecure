@@ -2,7 +2,7 @@
 #### Implemented in PHP with a minor frontend
 
 # Usage 
-php ws.php
+nohup php ws.php &
 
 # Info
 #### checkPortUsage really is only for debugging atm, so please use with caution

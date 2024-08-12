@@ -1,5 +1,7 @@
 <?php
 
+namespace app\core\src\websocket\src;
+
 class ClientManager {
 
     private $server;
@@ -19,6 +21,10 @@ class ClientManager {
         return $client;
     }
 
+    public function setClientByID(string $id, $client) {
+        $this->clients[$id] = $client;
+    }
+
     public function removeClient($client) {
         fclose($client);
         unset($this->clients[array_search($client, $this->clients)]);
@@ -36,9 +42,8 @@ class ClientManager {
         return $this->server;
     }
 
-    public function getClient($client): mixed {
-        $clients = $this->getClients();
-        return $clients[$client] ?? null;
+    public function getClient(string $client): mixed {
+        return $this->clients[$client] ?? null;
     }
 
     public function sendMessageToClient($client, $message): bool|int {
