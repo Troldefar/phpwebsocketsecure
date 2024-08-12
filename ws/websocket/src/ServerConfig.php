@@ -1,6 +1,6 @@
 <?php
 
-namespace app\core\src\websocket\src;
+namespace ws\websocket\src;
 
 class ServerConfig {
     

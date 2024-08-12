@@ -5,7 +5,7 @@
  * Whatever floats your boat
  */
 
-require_once './ws/src/Websocket.php';
+use ws\websocket\Websocket;
 
 /**
  * Get your configs as you wish

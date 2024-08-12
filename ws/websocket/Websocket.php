@@ -1,6 +1,6 @@
 <?php
 
-namespace app\core\src\websocket;
+namespace ws\websocket;
 
 class Websocket {
 
