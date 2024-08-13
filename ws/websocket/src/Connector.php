@@ -42,7 +42,8 @@ class Connector {
 
             usleep(500000);
         }
-
+        
+        fclose(self::$client);
         return $buffer;
     }
 
